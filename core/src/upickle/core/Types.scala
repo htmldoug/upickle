@@ -54,11 +54,16 @@ trait Types{ types =>
     }
   }
 
+  protected def throwOnUnexpectedNulls: Boolean = false
+
   /**
     * A Reader that throws an error for all the visit methods which it does not define,
     * letting you only define the handlers you care about.
     */
-  trait SimpleReader[T] extends Reader[T] with upickle.core.SimpleVisitor[Any, T]
+  trait SimpleReader[T] extends Reader[T] with upickle.core.SimpleVisitor[Any, T] {
+
+    override def visitNull(index: Int): T = if (throwOnUnexpectedNulls) throw Abort(expectedMsg + " got null") else null.asInstanceOf[T]
+  }
 
   /**
     * Represents the ability to read a value of type [[T]].
